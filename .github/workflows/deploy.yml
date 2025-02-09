@@ -1,10 +1,8 @@
-# ReefscapeQRScout/.github/workflows/deploy.yml
-
-name: Deploy static content to Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ['main']
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -13,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: pages
   cancel-in-progress: true
 
 env:
@@ -27,16 +25,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22.9.0'
-          cache: 'npm'
+          cache: npm
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
       - name: Build
@@ -48,11 +46,9 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # Only supply the build directory – no additional archiving is done.
           path: ./dist
-          name: github-pages
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
-        with:
-          artifact_name: github-pages
