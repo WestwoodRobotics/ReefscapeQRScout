@@ -1,66 +1,58 @@
 # ReefscapeQRScout/.github/workflows/deploy.yml
+
 name: Deploy static content to Pages
 
 on:
- # Triggers the workflow on push to the main branch
- push:
-   branches: ['main']
- # Allows manual triggering from the Actions tab
- workflow_dispatch:
+  push:
+    branches: ['main']
+  workflow_dispatch:
 
 permissions:
- contents: read
- pages: write
- id-token: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
- group: 'pages'
- cancel-in-progress: true
+  group: 'pages'
+  cancel-in-progress: true
 
 env:
- VITE_STATSIG_CLIENT_KEY: client-FccOCTznRdYyGr7cx3vJoyoWyO1BTqBzv6S2g1lYPvB
+  VITE_STATSIG_CLIENT_KEY: client-FccOCTznRdYyGr7cx3vJoyoWyO1BTqBzv6S2g1lYPvB
 
 jobs:
- deploy:
-   environment:
-     name: github-pages
-     url: ${{ steps.deployment.outputs.page_url }}
-   runs-on: ubuntu-latest
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
 
-   steps:
-     # Checkout the repository
-     - name: Checkout
-       uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-     # Setup Node.js with the required version
-     - name: Setup Node.js
-       uses: actions/setup-node@v3
-       with:
-         node-version: '22.9.0'   # Updated Node.js version
-         cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.9.0'
+          cache: 'npm'
 
-     # Install dependencies
-     - name: Install dependencies
-       run: npm install
+      - name: Install dependencies
+        run: npm install
 
-     # Build the project
-     - name: Build
-       run: npm run build
+      - name: Build
+        run: npm run build
 
-     # Configure GitHub Pages
-     - name: Setup Pages
-       uses: actions/configure-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
 
-     # Upload the build artifact for deployment
-     - name: Upload Pages Artifact
-       uses: actions/upload-pages-artifact@v3
-       with:
-         path: ./dist
-         name: github-pages
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+          name: github-pages
 
-     # Deploy to GitHub Pages
-     - name: Deploy to GitHub Pages
-       id: deployment
-       uses: actions/deploy-pages@v2
-       with:
-         artifact_name: github-pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          artifact_name: github-pages
