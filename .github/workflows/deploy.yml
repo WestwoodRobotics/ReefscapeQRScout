@@ -2,7 +2,7 @@ name: Deploy static content to Pages
 
 on:
   push:
-    branches: [ 'main' ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -11,26 +11,21 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: true
 
-env:
-  VITE_STATSIG_CLIENT_KEY: client-FccOCTznRdYyGr7cx3vJoyoWyO1BTqBzv6S2g1lYPvB
-
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # 1) Build job
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18'
           cache: 'npm'
 
       - name: Install dependencies
@@ -38,16 +33,26 @@ jobs:
 
       - name: Build
         run: npm run build
+        # Make sure "npm run build" outputs the final files to ./dist
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
+        # No special configuration needed for static sites
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          # Update the path if your build folder is different than "dist"
-          path: './build' 
+          path: './dist'
+          # Make sure the folder matches exactly what your build command produces
 
+  # 2) Deployment job
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
